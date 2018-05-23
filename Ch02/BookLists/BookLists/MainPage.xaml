@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:BookLists"
+             x:Class="BookLists.MainPage">
+
+    <StackLayout>
+      <StackLayout x:Name="PhoneView">
+            <Button Margin="20,20" 
+                WidthRequest="300" 
+                HorizontalOptions="Center"
+                Text="Microsoft Books" 
+                Clicked="MicrosoftBooks_Clicked"></Button>
+            <Button Margin="20,20" 
+                WidthRequest="300" 
+                HorizontalOptions="Center"
+                Text="Programming" 
+                Clicked="Programming_Clicked"></Button>
+            <Button Margin="20,20" 
+                WidthRequest="300" 
+                HorizontalOptions="Center"
+                Text="Mobile" 
+                Clicked="Mobile_Clicked"></Button>
+            <Button Margin="20,20" 
+                WidthRequest="300" 
+                HorizontalOptions="Center"
+                Text="Machine Learning" 
+                Clicked="MachineLearning_Clicked"></Button>
+        </StackLayout>
+
+
+        <Grid x:Name="TabletView" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalOptions="Center" HorizontalOptions="Center" FontSize="Medium" FontAttributes="Bold" Text="Book List"></Label>
+            <Image  Grid.Row="1" Grid.Column="0" Aspect="AspectFill" Source="{local:ImageResource BookLists.Images.Microsoft.png}" >
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer 
+                   NumberOfTapsRequired="1"                  
+                   Tapped="MicrosoftBooks_Clicked"/>
+                </Image.GestureRecognizers>
+            </Image>
+            <Label Grid.Row="2" Grid.Column="0" VerticalOptions="Center" FontSize="Small" HorizontalTextAlignment="Center" TextColor="Blue" Text="Microsoft"></Label>
+
+            <Image Grid.Row="3" Grid.Column="0" Aspect="AspectFill"   Source="{local:ImageResource BookLists.Images.Programming.png}" >
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer
+                   NumberOfTapsRequired="1"
+                   Tapped="Programming_Clicked"/>
+                </Image.GestureRecognizers>
+            </Image>
+            <Label Grid.Row="4" Grid.Column="0" VerticalOptions="Center" FontSize="Small" HorizontalTextAlignment="Center" TextColor="Blue"  Text="Programming"></Label>
+            <Image  Grid.Row="1" Grid.Column="1" Aspect="AspectFill"  Source="{local:ImageResource BookLists.Images.Mobile.png}" >
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer
+                   NumberOfTapsRequired="1"
+                   Tapped="Mobile_Clicked"/>
+                </Image.GestureRecognizers>
+            </Image>
+            <Label Grid.Row="2" Grid.Column="1" VerticalOptions="Center" FontSize="Small" HorizontalTextAlignment="Center" TextColor="Blue"  Text="Mobile"></Label>
+            <Image Grid.Row="3" Grid.Column="1" Aspect="AspectFill" Source="{local:ImageResource BookLists.Images.MachineLearning.png}" >
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer
+                   NumberOfTapsRequired="1"
+                   Tapped="MachineLearning_Clicked"/>
+                </Image.GestureRecognizers>
+            </Image>
+            <Label Grid.Row="4" Grid.Column="1" VerticalOptions="Center" FontSize="Small"  HorizontalTextAlignment="Center" TextColor="Blue" Text="Machine Learning"></Label>
+
+        </Grid>
+
+    </StackLayout>
+
+</ContentPage>

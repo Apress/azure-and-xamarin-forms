@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="BookPollClientApp.MainPage"
+						 xmlns="http://xamarin.com/schemas/2014/forms"
+						 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+						 Title="Book Poll" x:Name="RootPage">
+
+		<ContentPage.ToolbarItems>
+				<ToolbarItem Text="Show Results" Icon="results.png" Clicked="OnShowResults" />
+				<ToolbarItem Text="Remove My Response" Icon="trash.png" Clicked="OnDelete" />
+		</ContentPage.ToolbarItems>
+
+		<Grid>
+				<StackLayout Padding="20" Spacing="10">
+						<Label Text="Enter your name:" />
+						<Entry TextColor="Black" TextChanged="OnNameChanged" />
+						<Label Text="Question:" />
+            <Picker x:Name="questionPicker" SelectedIndexChanged="OnQuestionChanged" />
+            <StackLayout x:Name="answerGroup" Spacing="20" Padding="20" />
+				</StackLayout>
+
+				<Grid BackgroundColor="Black"
+							IsVisible="{Binding Source={x:Reference RootPage}, Path=IsBusy}"
+							Opacity=".8">
+						<ActivityIndicator IsRunning="{Binding Source={x:Reference RootPage}, Path=IsBusy}" Color="White">
+				<ActivityIndicator.HorizontalOptions>
+					<OnPlatform x:TypeArguments="LayoutOptions" iOS="Center" Android="Center" WinPhone="FillAndExpand" />
+				</ActivityIndicator.HorizontalOptions>
+								<ActivityIndicator.VerticalOptions>
+										<OnPlatform x:TypeArguments="LayoutOptions" iOS="Center" Android="Center" WinPhone="Fill" />
+								</ActivityIndicator.VerticalOptions>
+				<ActivityIndicator.Scale>
+					<OnPlatform x:TypeArguments="x:Double" iOS="1" Android="1" WinPhone="4" />
+				</ActivityIndicator.Scale>
+			</ActivityIndicator>
+				</Grid>
+		</Grid>
+
+
+</ContentPage>
