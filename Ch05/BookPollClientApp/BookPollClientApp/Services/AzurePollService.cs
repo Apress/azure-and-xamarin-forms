@@ -6,7 +6,9 @@ using BookPollClientApp.Interfaces;
 using BookPollClientApp.Models;
 using Microsoft.WindowsAzure.MobileServices;
 using System.Linq;
-
+using Microsoft.WindowsAzure.MobileServices.SQLiteStore;
+using Microsoft.WindowsAzure.MobileServices.Sync;
+using System.Diagnostics;
 
 namespace BookPollClientApp.Services
 {
@@ -14,48 +16,88 @@ namespace BookPollClientApp.Services
     {
         const string AzureUrl = @"http://bookpollapp.azurewebsites.net";
         MobileServiceClient client;
-        IMobileServiceTable<PollResponse> responseTable;
-        IMobileServiceTable<PollQuestion> questionsTable;
 
-        void Initialize()
+            IMobileServiceSyncTable<PollQuestion> questionsTable;
+            IMobileServiceSyncTable<PollResponse> responseTable;
+
+        async Task InitializeAsync()
         {
             if (client != null)
                 return;
+            var store = new MobileServiceSQLiteStore("Poll.db");
+            store.DefineTable<PollQuestion>();
+            store.DefineTable<PollResponse>();
+
 
             client = new MobileServiceClient(AzureUrl);
-            questionsTable = client.GetTable<PollQuestion>();
-            responseTable = client.GetTable<PollResponse>();
 
+            await client.SyncContext.InitializeAsync(store, new MobileServiceSyncHandler());
+            questionsTable = client.GetSyncTable<PollQuestion>();
+            responseTable = client.GetSyncTable<PollResponse>();
+            try
+            {
+                await client.SyncContext.PushAsync();
+                await questionsTable.PullAsync(
+                    "allQuestions", questionsTable.CreateQuery());
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Got exception: {0}", ex.Message);
+            }
+        }
+        async Task SynchronizeResponsesAsync(string questionId)
+        {
+            try
+            {
+                await responseTable.PullAsync("syncResponses" + questionId,
+                                                  responseTable.Where(
+                                                  r => r.PollQuestionId == questionId));
+            }
+            catch (Exception ex)
+            {
+                // TODO: handle error
+                Debug.WriteLine("Got exception: {0}", ex.Message);
+            }
         }
 
 
-        public Task AddOrUpdatePollResponseAsync(PollResponse response)
+        public async Task AddOrUpdatePollResponseAsync(PollResponse response)
         {
-            Initialize();
+            await InitializeAsync();
 
             if (string.IsNullOrEmpty(response.Id))
             {
-                return responseTable.InsertAsync(response);
+                await responseTable.InsertAsync(response);
             }
-            return responseTable.UpdateAsync(response);
+           await responseTable.UpdateAsync(response);
+           await SynchronizeResponsesAsync(response.PollQuestionId);
 
         }
 
         public async Task DeletePollResponseAsync(PollResponse response)
         {
-            Initialize();
+            await InitializeAsync();
             await responseTable.DeleteAsync(response);
+            await SynchronizeResponsesAsync(response.PollQuestionId);
         }
 
-        public Task<IEnumerable<PollQuestion>> GetQuestionsAsync()
+        public async Task<IEnumerable<PollQuestion>> GetQuestionsAsync()
         {
-            Initialize();
-            return questionsTable.ReadAsync();
+            await InitializeAsync();
+            return await questionsTable.ReadAsync();
         }
-
+        string lastQuestionId;
         public async Task<PollResponse> GetResponseForPollAsync(string questionId, string name)
         {
-            Initialize();
+            await InitializeAsync();
+
+            if (lastQuestionId != questionId)
+            {
+                // Get the latest responses for this question.
+                await SynchronizeResponsesAsync(questionId);
+                lastQuestionId = questionId;
+            }
+
             return (await responseTable.Where(r => r.PollQuestionId == questionId && r.Name == name)
     .ToEnumerableAsync()).FirstOrDefault();
 
@@ -63,7 +105,7 @@ namespace BookPollClientApp.Services
 
         public async Task<IEnumerable<PollResponse>> GetResponsesForPollAsync(string questionId)
         {
-            Initialize();
+            await InitializeAsync();
             return await responseTable
               .OrderByDescending(r => r.UpdatedAt)
               .Take(100).ToEnumerableAsync();
