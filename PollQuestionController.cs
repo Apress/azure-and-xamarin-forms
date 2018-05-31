@@ -9,7 +9,7 @@ using BookPollAppService.Models;
 
 namespace BookPollAppService.Controllers
 {
-    public class PollQuestionController : TableController<PollQuestion>
+    public class QuestionsController : TableController<PollQuestion>
     {
         protected override void Initialize(HttpControllerContext controllerContext)
         {
